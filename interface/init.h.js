@@ -1,10 +1,9 @@
-# SHPS4Node-init
-SHPS4Node Init/Terminate Lifecycle System Module
+﻿'use strict';
 
-# Interface
-
-```js
-class Init {
+/**
+ * Booststrapper module for SHPS
+ */
+module.exports = class Init {
 
     /**
      * The Init Module initializes itself on creation
@@ -50,4 +49,3 @@ class Init {
      */
     static halt() { throw 'Not Implemented'; }
 };
-```
