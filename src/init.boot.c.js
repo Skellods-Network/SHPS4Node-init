@@ -12,7 +12,7 @@ const error = require('verror');
 const init = require('../interface/init.h.js');
 
 
-init.boot = function () {
+init.boot = function ($isDebug = false) {
 
     const d = defer();
 
@@ -49,6 +49,10 @@ init.boot = function () {
          */
         const _init = $mod => {
 
+            nmlGlobal.libs.coml
+                ? nmlGlobal.libs.coml.write(`Initialize module ${$mod}...`)
+                : console.log(`Initialize module ${$mod}...`);
+
             if (require($mod) instanceof main.mixins.init) {
 
                 return require($mod).init();
@@ -83,7 +87,7 @@ init.boot = function () {
             'SQL',
         ];
 
-        nmlGlobal.addMeta('main', main);
+        nmlGlobal.addMeta('main', new main($isDebug));
         if (!init.init().orElse($e => {
 
                 d.reject($e);
@@ -93,7 +97,7 @@ init.boot = function () {
             return;
         }
 
-        if (!nmlGlobal.libs.main.init().orElse($e => {
+        if (!main.init().orElse($e => {
 
                 d.reject($e);
                 return false;
