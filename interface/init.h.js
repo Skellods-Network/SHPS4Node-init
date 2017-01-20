@@ -6,19 +6,11 @@
 module.exports = class Init {
 
     /**
-     * The Init Module initializes itself on creation
-     */
-    constructor() {
-
-        Init.init();
-    }
-
-    /**
      * Initialize all SHPS modules
      *
-     * @result QPromise
+     * @result Promise
      */
-    boot() { throw 'Not Implemented'; }
+    static boot() { }
 
     /**
      * Shuts SHPS down
@@ -27,25 +19,25 @@ module.exports = class Init {
      * Only call this method when you really want to exit SHPS
      * Don't come running the me. I warned you!
      *
-     * @result QPromise
+     * @result Promise
      */
-    shutdown() { throw 'Not Implemented'; }
+    static shutdown() { }
 
     /**
      * Initializes this module
      * Must safely initialize the module, even after restarts
      * Attention: Module might not work when not initialized
      *
-     * @result QPromise
+     * @result Promise
      */
-    static init() { throw 'Not Implemented'; }
+    static init() { }
 
     /**
      * Shuts the module down
      * Must safely shut down the module so that it works even when restarted
      * Attention: Module might not work when shut down!
      *
-     * @result QPromise
+     * @result Promise
      */
-    static halt() { throw 'Not Implemented'; }
+    static halt() { }
 };
