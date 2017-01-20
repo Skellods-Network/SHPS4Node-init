@@ -1,25 +1,21 @@
 # SHPS4Node-init
-SHPS4Node Init/Terminate Lifecycle System Module
+SHPS4Node Boot/Shutdown Lifecycle System Module
+
 
 # Interface
 
 ```js
-class Init {
-
-    /**
-     * The Init Module initializes itself on creation
-     */
-    constructor() {
-
-        Init.init();
-    }
+/**
+ * Boost module for SHPS
+ */
+module.exports = class Init {
 
     /**
      * Initialize all SHPS modules
      *
-     * @result QPromise
+     * @returns {Promise<Init, VError>}
      */
-    boot() { throw 'Not Implemented'; }
+    static boot() { }
 
     /**
      * Shuts SHPS down
@@ -28,26 +24,26 @@ class Init {
      * Only call this method when you really want to exit SHPS
      * Don't come running the me. I warned you!
      *
-     * @result QPromise
+     * @returns {Promise<Init, VError>}
      */
-    shutdown() { throw 'Not Implemented'; }
+    static shutdown() { }
 
     /**
      * Initializes this module
      * Must safely initialize the module, even after restarts
      * Attention: Module might not work when not initialized
      *
-     * @result QPromise
+     * @returns {Result<Init>}
      */
-    static init() { throw 'Not Implemented'; }
+    static init() { }
 
     /**
      * Shuts the module down
      * Must safely shut down the module so that it works even when restarted
      * Attention: Module might not work when shut down!
      *
-     * @result QPromise
+     * @returns {Result<Init>}
      */
-    static halt() { throw 'Not Implemented'; }
+    static halt() { }
 };
 ```

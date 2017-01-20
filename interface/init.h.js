@@ -1,14 +1,14 @@
 ﻿'use strict';
 
 /**
- * Booststrapper module for SHPS
+ * Boost module for SHPS
  */
 module.exports = class Init {
 
     /**
      * Initialize all SHPS modules
      *
-     * @result Promise
+     * @returns {Promise<Init, VError>}
      */
     static boot() { }
 
@@ -19,7 +19,7 @@ module.exports = class Init {
      * Only call this method when you really want to exit SHPS
      * Don't come running the me. I warned you!
      *
-     * @result Promise
+     * @returns {Promise<Init, VError>}
      */
     static shutdown() { }
 
@@ -28,7 +28,7 @@ module.exports = class Init {
      * Must safely initialize the module, even after restarts
      * Attention: Module might not work when not initialized
      *
-     * @result Promise
+     * @returns {Result<Init>}
      */
     static init() { }
 
@@ -37,7 +37,7 @@ module.exports = class Init {
      * Must safely shut down the module so that it works even when restarted
      * Attention: Module might not work when shut down!
      *
-     * @result Promise
+     * @returns {Result<Init>}
      */
     static halt() { }
 };

@@ -1,95 +1,242 @@
 ﻿'use strict';
 
-var libs = require('node-mod-load').libs;
-var q = require('q');
-var async = require('vasync');
+const path = require('path');
 
-require('../interface/init.h.js').prototype.boot = function () {
+const chalk = require('chalk');
+const defer = require('promise-defer');
+const nml = require('node-mod-load');
+const main = require(path.dirname(require.main.filename) + '/system/core');
+const Result = require('result-js');
+const error = require('verror');
 
-    var d = q.defer();
+const init = require('../interface/init.h.js');
 
-    process.title = 'SHPS Terminal';
-    console.log('Please wait while I boot SHPS... it won\'t take long ;)');
 
-    var keys = Object.keys(libs);
-    var i = 0;
-    var l = keys.length;
-    var proms = [];
-    while (i < l) {
+init.boot = function () {
 
-        if (libs[keys[i]].init) {
+    const d = defer();
 
-            proms.push(libs[keys[i]].init());
+    console.log(chalk.green.bold('\n WELCOME to a world of no worries.\n WELCOME to SHPS!\n'));
+
+    nml.getPackageInfo(path.dirname(require.main.filename)).then($r => {
+
+        console.log(`You are starting SHPS v${chalk.cyan.bold($r.version + ' ' + $r.cycle)}, but please call her ${chalk.cyan.bold($r.internalName)}!`);
+        console.log('Please wait while I boot SHPS... it won\'t take long ;)\n');
+
+        console.log('Prepare environment...');
+        global.VError = error.VError;
+        global.WError = error.WError;
+        global.SError = error.SError;
+        global.MultiError = error.MultiError;
+
+
+        console.log('Boot SHPS...');
+
+        /**
+         * Decorate Module Name
+         * for abbreviating module names
+         *
+         * @param {string} $mod
+         * @returns {string}
+         */
+        const dmn = $mod => 'SHPS4Node-' + $mod;
+
+        /**
+         * Initialize Module
+         *
+         * @param {string} $mod full module name
+         * @returns {Result}
+         */
+        const _init = $mod => {
+
+            if (require($mod) instanceof main.mixins.init) {
+
+                return require($mod).init();
+            }
+
+            return Result.fromSuccess(require($mod));
+        };
+
+        const nmlGlobal = nml('SHPS4Node');
+        const mods2init = [];
+        const initializedMods = [];
+        const modules = [
+            'auth',
+            'cache',
+            ['commandline', 'coml'],
+            'config',
+            'cookie',
+            'CSS',
+            ['dependency', 'dep'],
+            'error',
+            'file',
+            'frontend',
+            ['language', 'lang'],
+            //'log',
+            'make',
+            'optimize',
+            'parallel',
+            'plugin',
+            'sandbox',
+            'schedule',
+            'session',
+            'SQL',
+        ];
+
+        nmlGlobal.addMeta('main', main);
+        if (!init.init().orElse($e => {
+
+                d.reject($e);
+                return false;
+            })) {
+
+            return;
         }
 
-        i++;
-    }
+        if (!nmlGlobal.libs.main.init().orElse($e => {
 
-    Promise.all(proms).then($res => {
+                d.reject($e);
+                return false;
+            })) {
 
-        async.pipeline({
+            return;
+        }
 
-            'funcs': [
+        nmlGlobal.addMeta('init', init);
+        for (let iMod of modules) {
 
-                function f_init_terminal($_p1, $_p2) {
+            let mod = Array.isArray(iMod)
+                ? iMod[0]
+                : iMod;
 
-                    // resolver will receive list of loaded modules
-                    libs.coml.init('SHPS'.cyan + '> '.bold).then(function () {
+            let fmn = dmn(mod);
+            nmlGlobal.addMeta(mod, require(fmn));
+            if (nml(fmn).info.init) {
 
-                        $_p2();
-                    }, $_p2);
-                }
-                , function f_init_checkUpdate($_p1, $_p2) { libs.main.checkUpdate().done($_p2, $_p2); }
-                , function f_init_checkFS($_p1, $_p2) { libs.main.checkFS().done($_p2, $_p2); }
-                , function f_init_readConfig($_p1, $_p2) { libs.config.readConfig().done($_p2, $_p2); }
-                , function f_init_loadPlugins($_p1, $_p2) { libs.plugin.loadPluginList().then($_p2, $_p2); }
-                , function f_init_parallelize($_p1, $_p2) {
+                let canInit = true;
+                for (let dep of nml(fmn).info.init) {
 
-                    var wc = libs.config.getHPConfig('config', 'workers');
-                    if (wc > 0 || wc === -1) {
+                    if (!initializedMods.includes(dep)) {
 
-                        libs.parallel.handle().done($_p2, $_p2);
-                    }
-                    else {
-
-                        $_p2();
+                        canInit = false;
+                        break;
                     }
                 }
-                , function f_init_listen($_p1, $_p2) {
 
-                    if (libs.parallel.work()) {
+                if (canInit) {
 
-                        libs.main.listen();
-                    }
+                    let obj = _init(fmn).orElse($e => {
 
-                    process.nextTick($_p2);
-                }
-                , function f_init_event($_p1, $_p2) {
-
-                    libs.coml.write('');
-                    process.on('exit', function ($code) {
-
-                        libs.main.killAllServers();
+                        d.reject($e);
+                        return false;
                     });
 
-                    libs.schedule.sendSignal('onMainInit', $_p1);
-                    process.nextTick($_p2);
+                    if (typeof obj === 'boolean') {
+
+                        return;
+                    }
+
+                    nmlGlobal.addMeta(mod, obj);
+                    if (Array.isArray(iMod)) {
+
+                        nmlGlobal.addMeta(iMod[1], obj);
+                    }
+
+                    initializedMods.push(mod);
                 }
-            ]
-        }, function f_init_done($err, $res) {
+                else {
 
-            if ($err) {
-
-                console.error('\nCould not fully initialize SHPS!\nError: ' + $err);
-                d.reject($err);
+                    mods2init.push(mod);
+                }
             }
             else {
 
-                libs.coml.write('\nI\'m done here! SHPS at your service - what can I do for you?\n'.bold);
-                d.resolve();
+                let obj = _init(fmn).orElse($e => {
+
+                    d.reject($e);
+                    return false;
+                });
+
+                if (typeof obj === 'boolean') {
+
+                    return;
+                }
+
+                nmlGlobal.addMeta(mod, obj);
+                if (Array.isArray(iMod)) {
+
+                    nmlGlobal.addMeta(iMod[1], obj);
+                }
+
+                initializedMods.push(mod);
             }
-        });
+        }
+
+        let numActions = 0;
+        while (mods2init.length > 0) {
+
+            for (let iMod of modules) {
+
+                let mod = Array.isArray(iMod)
+                    ? iMod[0]
+                    : iMod;
+
+                let fmn = dmn(mod);
+                if (nml(fmn).info.init) {
+
+                    let canInit = true;
+                    for (let dep of nml(fmn).info.init) {
+
+                        if (!initializedMods.includes(dep)) {
+
+                            canInit = false;
+                            break;
+                        }
+                    }
+
+                    if (canInit) {
+
+                        let obj = _init(fmn).orElse($e => {
+
+                            d.reject($e);
+                            return false;
+                        });
+
+                        if (typeof obj === 'boolean') {
+
+                            return;
+                        }
+
+                        nmlGlobal.addMeta(mod, obj);
+                        if (Array.isArray(iMod)) {
+
+                            nmlGlobal.addMeta(iMod[1], obj);
+                        }
+
+                        initializedMods.push(mod);
+                        mods2init.splice(mods2init.indexOf(mod), 1);
+                        numActions++;
+                    }
+                }
+            }
+
+            if (numActions <= 0) {
+
+                d.reject(new VError({
+
+                    info: {
+                        mods: mods2init,
+                    },
+                }, 'Circular init-dependencies in SHPS modules detected!'));
+
+                break;
+            }
+        }
+
+        console.log(nmlGlobal.libs.coml.write('\nI am done booting SHPS!\n'));
+
+        d.resolve(init);
     }, d.reject);
-    
+
     return d.promise;
 };
