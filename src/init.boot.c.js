@@ -237,7 +237,7 @@ init.boot = function ($isDebug = false) {
             }
         }
 
-        console.log(nmlGlobal.libs.coml.write('\nI am done booting SHPS!\n'));
+        nmlGlobal.libs.coml.write('\nI am done booting SHPS!\n');
 
         d.resolve(init);
     }, d.reject);
