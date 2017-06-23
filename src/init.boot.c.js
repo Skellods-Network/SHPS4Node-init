@@ -49,12 +49,6 @@ init.boot = function ($isDebug = false) {
          * @returns {Result}
          */
         const _init = $mod => {
-            (
-                nmlGlobal.libs.coml
-                    ? nmlGlobal.libs.coml.write
-                    : console.log
-            )(`Initialize module ${$mod}...`);
-
             const mod = require($mod);
             if (Option.fromGuess(mod).isNone()) {
                 return Result.fromError(new VError({
@@ -65,6 +59,12 @@ init.boot = function ($isDebug = false) {
                     },
                 }));
             }
+
+            (
+                nmlGlobal.libs.coml
+                    ? nmlGlobal.libs.coml.write
+                    : console.log
+            )(`Initialize module ${$mod}...`);
 
             if (typeof mod.init === 'function') {
                 return mod.init();
