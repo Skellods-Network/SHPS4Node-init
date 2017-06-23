@@ -6,7 +6,8 @@ const chalk = require('chalk');
 const defer = require('promise-defer');
 const nml = require('node-mod-load');
 const main = require(path.dirname(require.main.filename) + '/system/core');
-const Result = require('result-js');
+const Result = require('rustify-js').Result;
+const Option = require('rustify-js').Option;
 const error = require('verror');
 
 const init = require('../interface/init.h.js');
@@ -48,17 +49,28 @@ init.boot = function ($isDebug = false) {
          * @returns {Result}
          */
         const _init = $mod => {
+            (
+                nmlGlobal.libs.coml
+                    ? nmlGlobal.libs.coml.write
+                    : console.log
+            )(`Initialize module ${$mod}...`);
 
-            nmlGlobal.libs.coml
-                ? nmlGlobal.libs.coml.write(`Initialize module ${$mod}...`)
-                : console.log(`Initialize module ${$mod}...`);
-
-            if (require($mod) instanceof main.mixins.init) {
-
-                return require($mod).init();
+            const mod = require($mod);
+            if (Option.fromGuess(mod).isNone()) {
+                return Result.fromError(new VError({
+                    name: 'Module Not Found',
+                    cause: new Error('Could not find module ' + $mod.toString()),
+                    info: {
+                        errno: 'EMODNOTFOUND',
+                    },
+                }));
             }
 
-            return Result.fromSuccess(require($mod));
+            if (typeof mod.init === 'function') {
+                return mod.init();
+            }
+
+            return Result.fromSuccess(mod);
         };
 
         const nmlGlobal = nml('SHPS4Node');
@@ -222,11 +234,13 @@ init.boot = function ($isDebug = false) {
             if (numActions <= 0) {
 
                 d.reject(new VError({
-
+                    name: 'Circular Dependencies Detected',
+                    cause: new Error('Circular init-dependencies in SHPS modules detected!'),
                     info: {
+                        errno: 'ECIRCULARDEPS',
                         mods: mods2init,
                     },
-                }, 'Circular init-dependencies in SHPS modules detected!'));
+                }, ));
 
                 break;
             }

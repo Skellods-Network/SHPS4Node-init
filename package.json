@@ -10,7 +10,7 @@
     "vasync": "^1.6.0",
     "verror": "^1.6.0",
     "promise-defer": "^1.0.0",
-    "result-js": "^3.0.2",
+    "rustify-js": "^0.1.1",
     "chalk": "^1.1.0"
   }
 }
