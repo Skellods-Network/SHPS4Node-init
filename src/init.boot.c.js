@@ -240,7 +240,7 @@ init.boot = function ($isDebug = false) {
                         errno: 'ECIRCULARDEPS',
                         mods: mods2init,
                     },
-                }, ));
+                }));
 
                 break;
             }
