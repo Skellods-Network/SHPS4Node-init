@@ -5,7 +5,7 @@ const path = require('path');
 const chalk = require('chalk');
 const defer = require('promise-defer');
 const nml = require('node-mod-load');
-const main = require(path.dirname(require.main.filename) + '/system/core');
+const Main = require(path.dirname(require.main.filename) + '/system/core');
 const Result = require('rustify-js').Result;
 const Option = require('rustify-js').Option;
 const error = require('verror');
@@ -13,15 +13,17 @@ const error = require('verror');
 const init = require('../interface/init.h.js');
 
 
-init.boot = function ($isDebug = false) {
-
+init.boot = function($isDebug = false) {
     const d = defer();
 
     console.log(chalk.green.bold('\n WELCOME to a world of no worries.\n WELCOME to SHPS!\n'));
 
     nml.getPackageInfo(path.dirname(require.main.filename)).then($r => {
+        console.log(
+            `You are starting SHPS v${chalk.cyan.bold($r.version + ' ' + $r.cycle)},`+
+            `but please call her ${chalk.cyan.bold($r.internalName)}!`
+        );
 
-        console.log(`You are starting SHPS v${chalk.cyan.bold($r.version + ' ' + $r.cycle)}, but please call her ${chalk.cyan.bold($r.internalName)}!`);
         console.log('Please wait while I boot SHPS... it won\'t take long ;)\n');
 
         console.log('Prepare environment...');
@@ -30,7 +32,6 @@ init.boot = function ($isDebug = false) {
         global.SError = error.SError;
         global.MultiError = error.MultiError;
 
-
         console.log('Boot SHPS...');
 
         /**
@@ -38,7 +39,7 @@ init.boot = function ($isDebug = false) {
          * for abbreviating module names
          *
          * @param {string} $mod
-         * @returns {string}
+         * @return {string}
          */
         const dmn = $mod => 'SHPS4Node-' + $mod;
 
@@ -46,12 +47,19 @@ init.boot = function ($isDebug = false) {
          * Initialize Module
          *
          * @param {string} $mod full module name
-         * @returns {Result}
+         * @return {Result}
          */
         const _init = $mod => {
+            (
+                nmlGlobal.libs.coml
+                    ? nmlGlobal.libs.coml.write
+                    : console.log
+            )(`Initialize module ${$mod}...`);
+
             const mod = require($mod);
+
             if (Option.fromGuess(mod).isNone()) {
-                return Result.fromError(new VError({
+                return Result.fromError(new global.VError({
                     name: 'Module Not Found',
                     cause: new Error('Could not find module ' + $mod.toString()),
                     info: {
@@ -59,12 +67,6 @@ init.boot = function ($isDebug = false) {
                     },
                 }));
             }
-
-            (
-                nmlGlobal.libs.coml
-                    ? nmlGlobal.libs.coml.write
-                    : console.log
-            )(`Initialize module ${$mod}...`);
 
             if (typeof mod.init === 'function') {
                 return mod.init();
@@ -84,7 +86,7 @@ init.boot = function ($isDebug = false) {
             ['dependency', 'dep'],
             'error',
             ['language', 'lang'],
-            //'log',
+            // 'log',
             'optimize',
             'parallel',
             'plugin',
@@ -94,88 +96,75 @@ init.boot = function ($isDebug = false) {
             'SQL',
         ];
 
-        nmlGlobal.addMeta('main', new main($isDebug));
+        nmlGlobal.addMeta('main', new Main($isDebug));
         if (!init.init().orElse($e => {
-
                 d.reject($e);
+
                 return false;
             })) {
-
             return;
         }
 
-        if (!main.init().orElse($e => {
-
+        if (!Main.init().orElse($e => {
                 d.reject($e);
+
                 return false;
             })) {
-
             return;
         }
 
         nmlGlobal.addMeta('init', init);
         for (let iMod of modules) {
-
             let mod = Array.isArray(iMod)
                 ? iMod[0]
                 : iMod;
 
             let fmn = dmn(mod);
+
             nmlGlobal.addMeta(mod, require(fmn));
             if (nml(fmn).info.init) {
-
                 let canInit = true;
+
                 for (let dep of nml(fmn).info.init) {
-
                     if (!initializedMods.includes(dep)) {
-
                         canInit = false;
                         break;
                     }
                 }
 
                 if (canInit) {
-
                     let obj = _init(fmn).orElse($e => {
-
                         d.reject($e);
+
                         return false;
                     });
 
                     if (typeof obj === 'boolean') {
-
                         return;
                     }
 
                     nmlGlobal.addMeta(mod, obj);
                     if (Array.isArray(iMod)) {
-
                         nmlGlobal.addMeta(iMod[1], obj);
                     }
 
                     initializedMods.push(mod);
-                }
-                else {
-
+                } else {
                     mods2init.push(mod);
                 }
-            }
-            else {
-
+            } else {
                 let obj = _init(fmn).orElse($e => {
-
                     d.reject($e);
+
                     return false;
                 });
 
                 if (typeof obj === 'boolean') {
-
                     return;
                 }
 
                 nmlGlobal.addMeta(mod, obj);
                 if (Array.isArray(iMod)) {
-
                     nmlGlobal.addMeta(iMod[1], obj);
                 }
 
@@ -184,43 +173,38 @@ init.boot = function ($isDebug = false) {
         }
 
         let numActions = 0;
+
         while (mods2init.length > 0) {
-
             for (let iMod of modules) {
-
                 let mod = Array.isArray(iMod)
                     ? iMod[0]
                     : iMod;
 
                 let fmn = dmn(mod);
+
                 if (nml(fmn).info.init) {
-
                     let canInit = true;
+
                     for (let dep of nml(fmn).info.init) {
-
                         if (!initializedMods.includes(dep)) {
-
                             canInit = false;
                             break;
                         }
                     }
 
                     if (canInit) {
-
                         let obj = _init(fmn).orElse($e => {
-
                             d.reject($e);
+
                             return false;
                         });
 
                         if (typeof obj === 'boolean') {
-
                             return;
                         }
 
                         nmlGlobal.addMeta(mod, obj);
                         if (Array.isArray(iMod)) {
-
                             nmlGlobal.addMeta(iMod[1], obj);
                         }
 
@@ -232,8 +216,7 @@ init.boot = function ($isDebug = false) {
             }
 
             if (numActions <= 0) {
-
-                d.reject(new VError({
+                d.reject(new global.VError({
                     name: 'Circular Dependencies Detected',
                     cause: new Error('Circular init-dependencies in SHPS modules detected!'),
                     info: {
