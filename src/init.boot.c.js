@@ -121,6 +121,12 @@ init.boot = function($isDebug = false) {
 
             let fmn = dmn(mod);
 
+            (
+                nmlGlobal.libs.coml
+                    ? nmlGlobal.libs.coml.write
+                    : console.log
+            )(`Load module ${fmn}...`);
+
             nmlGlobal.addMeta(mod, require(fmn));
             if (nml(fmn).info.init) {
                 let canInit = true;
