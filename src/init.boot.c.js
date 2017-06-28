@@ -52,7 +52,7 @@ init.boot = function($isDebug = false) {
         const _init = $mod => {
             (
                 nmlGlobal.libs.coml
-                    ? nmlGlobal.libs.coml.write
+                    ? nmlGlobal.libs.coml.writeLn
                     : console.log
             )(`Initialize module ${$mod}...`);
 
@@ -123,7 +123,7 @@ init.boot = function($isDebug = false) {
 
             (
                 nmlGlobal.libs.coml
-                    ? nmlGlobal.libs.coml.write
+                    ? nmlGlobal.libs.coml.writeLn
                     : console.log
             )(`Load module ${fmn}...`);
 
