@@ -54,7 +54,7 @@ init.boot = function($isDebug = false) {
                 nmlGlobal.libs.coml
                     ? nmlGlobal.libs.coml.writeLn
                     : console.log
-            )(`Initialize module ${$mod}...`);
+            ).apply(nmlGlobal.libs.coml, [`Initialize module ${$mod}...`]);
 
             const mod = require($mod);
 
@@ -125,9 +125,8 @@ init.boot = function($isDebug = false) {
                 nmlGlobal.libs.coml
                     ? nmlGlobal.libs.coml.writeLn
                     : console.log
-            )(`Load module ${fmn}...`);
+            ).apply(nmlGlobal.libs.coml, [`Load module ${fmn}...`]);
 
-            nmlGlobal.addMeta(mod, require(fmn));
             if (nml(fmn).info.init) {
                 let canInit = true;
 
