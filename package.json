@@ -11,6 +11,7 @@
     "verror": "^1.6.0",
     "promise-defer": "^1.0.0",
     "rustify-js": "^0.1.1",
-    "chalk": "^1.1.0"
+    "chalk": "^1.1.0",
+    "mics": "*"
   }
 }

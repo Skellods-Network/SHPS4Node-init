@@ -6,6 +6,7 @@ const chalk = require('chalk');
 const defer = require('promise-defer');
 const nml = require('node-mod-load');
 const Main = require(path.dirname(require.main.filename) + '/system/core');
+const mics = require('mics');
 const Result = require('rustify-js').Result;
 const Option = require('rustify-js').Option;
 const error = require('verror');
@@ -68,7 +69,8 @@ init.boot = function($isDebug = false) {
                 }));
             }
 
-            if (typeof mod.init === 'function') {
+            // if (typeof mod.init === 'function') {
+            if (mics.is(mod, nmlGlobal.libs._mixins.init)) {
                 return mod.init();
             }
 
