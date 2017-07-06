@@ -73,6 +73,9 @@ init.boot = function($isDebug = false) {
             if (mics.is(mod, nmlGlobal.libs._mixins.init)) {
                 return mod.init();
             }
+            else {
+                console.warn(`Warning: Module ${$mod.toString()} does not interface with the init system!`);
+            }
 
             return Result.fromSuccess(mod);
         };
