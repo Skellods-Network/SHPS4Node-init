@@ -9,7 +9,6 @@ const Main = require(path.dirname(require.main.filename) + '/system/core');
 const mics = require('mics');
 const nml = require('node-mod-load');
 const Option = require('rustify-js').Option;
-const pkginfo = require('pkginfo');
 const Result = require('rustify-js').Result;
 
 const init = require('../interface/init.h.js');
@@ -155,7 +154,6 @@ init.boot = function($isDebug = false) {
                     }
 
                     nmlGlobal.addMeta(mod, obj);
-                    nmlGlobal.versions[mod] = pkginfo(fmn, 'version').version;
                     if (Array.isArray(iMod)) {
                         nmlGlobal.addMeta(iMod[1], obj);
                     }
@@ -176,10 +174,8 @@ init.boot = function($isDebug = false) {
                 }
 
                 nmlGlobal.addMeta(mod, obj);
-                nmlGlobal.versions[mod] = pkginfo(fmn, 'version').version;
                 if (Array.isArray(iMod)) {
                     nmlGlobal.addMeta(iMod[1], obj);
-                    nmlGlobal.versions[iMod[1]] = pkginfo(fmn, 'version').version;
                 }
 
                 initializedMods.push(mod);
@@ -218,10 +214,8 @@ init.boot = function($isDebug = false) {
                         }
 
                         nmlGlobal.addMeta(mod, obj);
-                        nmlGlobal.versions[mod] = pkginfo(fmn, 'version').version;
                         if (Array.isArray(iMod)) {
                             nmlGlobal.addMeta(iMod[1], obj);
-                            nmlGlobal.versions[iMod[1]] = pkginfo(fmn, 'version').version;
                         }
 
                         initializedMods.push(mod);
