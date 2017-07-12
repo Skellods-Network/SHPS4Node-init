@@ -239,9 +239,11 @@ init.boot = function($isDebug = false) {
             }
         }
 
-        nmlGlobal.libs.coml.writeLn('\nI am done booting SHPS!\n');
-
-        d.resolve(init);
+        // Timeout so that other things in the queue can be completed before the boot ends.
+        setTimeout(() => {
+            nmlGlobal.libs.coml.writeLn('\nI am done booting SHPS!\n');
+            d.resolve(init);
+        }, 0);
     }, d.reject);
 
     return d.promise;
