@@ -4,12 +4,13 @@ const path = require('path');
 
 const chalk = require('chalk');
 const defer = require('promise-defer');
-const nml = require('node-mod-load');
+const error = require('verror');
 const Main = require(path.dirname(require.main.filename) + '/system/core');
 const mics = require('mics');
-const Result = require('rustify-js').Result;
+const nml = require('node-mod-load');
 const Option = require('rustify-js').Option;
-const error = require('verror');
+const pkginfo = require('pkginfo');
+const Result = require('rustify-js').Result;
 
 const init = require('../interface/init.h.js');
 
@@ -130,7 +131,7 @@ init.boot = function($isDebug = false) {
                 nmlGlobal.libs.coml
                     ? nmlGlobal.libs.coml.writeLn
                     : console.log
-            ).apply(nmlGlobal.libs.coml, [`Load module ${fmn}...`]);
+            ).call(nmlGlobal.libs.coml, `Load module ${fmn}...`);
 
             if (nml(fmn).info.init) {
                 let canInit = true;
@@ -154,6 +155,7 @@ init.boot = function($isDebug = false) {
                     }
 
                     nmlGlobal.addMeta(mod, obj);
+                    nmlGlobal.versions[mod] = pkginfo(fmn, 'version').version;
                     if (Array.isArray(iMod)) {
                         nmlGlobal.addMeta(iMod[1], obj);
                     }
@@ -174,8 +176,10 @@ init.boot = function($isDebug = false) {
                 }
 
                 nmlGlobal.addMeta(mod, obj);
+                nmlGlobal.versions[mod] = pkginfo(fmn, 'version').version;
                 if (Array.isArray(iMod)) {
                     nmlGlobal.addMeta(iMod[1], obj);
+                    nmlGlobal.versions[iMod[1]] = pkginfo(fmn, 'version').version;
                 }
 
                 initializedMods.push(mod);
@@ -214,8 +218,10 @@ init.boot = function($isDebug = false) {
                         }
 
                         nmlGlobal.addMeta(mod, obj);
+                        nmlGlobal.versions[mod] = pkginfo(fmn, 'version').version;
                         if (Array.isArray(iMod)) {
                             nmlGlobal.addMeta(iMod[1], obj);
+                            nmlGlobal.versions[iMod[1]] = pkginfo(fmn, 'version').version;
                         }
 
                         initializedMods.push(mod);

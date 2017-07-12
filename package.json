@@ -12,6 +12,7 @@
     "promise-defer": "^1.0.0",
     "rustify-js": "^0.1.1",
     "chalk": "^1.1.0",
-    "mics": "*"
+    "mics": "*",
+    "pkginfo": "^0.4.0"
   }
 }
