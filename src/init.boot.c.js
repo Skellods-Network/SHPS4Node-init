@@ -69,7 +69,6 @@ init.boot = function($isDebug = false) {
                 }));
             }
 
-            // if (typeof mod.init === 'function') {
             if (mics.is(mod, nmlGlobal.libs._mixins.init)) {
                 return mod.init();
             }
@@ -85,19 +84,13 @@ init.boot = function($isDebug = false) {
         const initializedMods = [];
         const modules = [
             'auth',
-            'cache',
             ['commandline', 'coml'],
             'config',
             ['dependency', 'dep'],
-            'error',
             ['language', 'lang'],
-            // 'log',
             'optimize',
-            'parallel',
             'plugin',
             'sandbox',
-            'schedule',
-            'session',
             'SQL',
         ];
 
