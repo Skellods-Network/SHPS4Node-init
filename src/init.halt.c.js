@@ -1,8 +1,13 @@
 ﻿'use strict';
 
-const h = require('../interface/init.h.js');
+const H = require('../interface/init.h.js');
+const libs = require('node-mod-load')('SHPS4Node').libs;
 
 
-h.halt = function () {
-
+H.halt = function() {
+    libs.main.writeLog(
+        libs.main.logLevels.warning,
+        { mod: 'INIT', msg: 'fixme: implement shutdown' },
+        () => process.exit(0)
+    );
 };

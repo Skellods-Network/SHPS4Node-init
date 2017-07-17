@@ -73,6 +73,11 @@ init.boot = function($isDebug = false) {
                 return mod.init();
             }
             else {
+                nmlGlobal.libs.main.writeLog(
+                    nmlGlobal.libs.main.logLevels.warning,
+                    { mod: 'INIT', msg: `Module ${$mod.toString()} does not interface with the init system!` }
+                );
+
                 console.warn(`Warning: Module ${$mod.toString()} does not interface with the init system!`);
             }
 
@@ -94,15 +99,6 @@ init.boot = function($isDebug = false) {
             'SQL',
         ];
 
-        nmlGlobal.addMeta('main', new Main($isDebug));
-        if (!init.init().orElse($e => {
-                d.reject($e);
-
-                return false;
-            })) {
-            return;
-        }
-
         if (!Main.init().orElse($e => {
                 d.reject($e);
 
@@ -112,12 +108,27 @@ init.boot = function($isDebug = false) {
         }
 
         nmlGlobal.addMeta('init', init);
+
+        const main = new Main($isDebug);
+
+        nmlGlobal.addMeta('main', main);
+        if (!init.init().orElse($e => {
+                d.reject($e);
+
+                return false;
+            })) {
+            return;
+        }
+
+        main.writeLog(main.logLevels.debug, { mod: 'INIT', msg: 'Main initialized and logging starts!' });
         for (let iMod of modules) {
             let mod = Array.isArray(iMod)
                 ? iMod[0]
                 : iMod;
 
             let fmn = dmn(mod);
+
+            main.writeLog(main.logLevels.debug, { mod: 'INIT', msg: `Preparing loading of "${fmn}"!` });
 
             (
                 nmlGlobal.libs.coml
@@ -234,6 +245,7 @@ init.boot = function($isDebug = false) {
 
         // Timeout so that other things in the queue can be completed before the boot ends.
         setTimeout(() => {
+            main.writeLog(main.logLevels.debug, { mod: 'INIT', msg: 'Boot-up ended gracefully!' });
             nmlGlobal.libs.coml.writeLn('\nI am done booting SHPS!\n');
             d.resolve(init);
         }, 0);
