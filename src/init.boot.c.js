@@ -147,7 +147,7 @@ init.boot = function($isDebug = false) {
                 }
 
                 if (canInit) {
-                    let obj = _init(fmn).orElse($e => {
+                    let obj = _init(fmn).unwrapOrElse($e => {
                         d.reject($e);
 
                         return false;
@@ -167,7 +167,7 @@ init.boot = function($isDebug = false) {
                     mods2init.push(mod);
                 }
             } else {
-                let obj = _init(fmn).orElse($e => {
+                let obj = _init(fmn).unwrapOrElse($e => {
                     d.reject($e);
 
                     return false;
@@ -207,7 +207,7 @@ init.boot = function($isDebug = false) {
                     }
 
                     if (canInit) {
-                        let obj = _init(fmn).orElse($e => {
+                        let obj = _init(fmn).unwrapOrElse($e => {
                             d.reject($e);
 
                             return false;
