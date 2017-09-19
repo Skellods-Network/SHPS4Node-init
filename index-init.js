@@ -1,8 +1,11 @@
 ﻿'use strict';
 
-module.exports = require('./interface/init.h.js');
+const path = require('path');
 
-require('./src/init.boot.c.js');
-require('./src/init.halt.c.js');
-require('./src/init.init.c.js');
-require('./src/init.shutdown.c.js');
+const nmlInit = require(path.dirname(require.main.filename) + path.sep + 'node_modules' + path.sep + 'node-mod-load')('SHPS4Node-init');
+
+
+nmlInit.addDir(__dirname + '/interface', true);
+nmlInit.addDir(__dirname + '/src', true);
+
+module.exports = nmlInit.libs['init.h'];

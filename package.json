@@ -1,12 +1,17 @@
 {
-    "name": "SHPS4Node-init",
-    "version": "1.0.0",
-    "description": "Init System used by SHPS",
-    "author": "Marco Alka <me@marco-alka.de>",
-    "main": "index-init.js",
-    "dependencies": {
-        "node-mod-load": "^2.1.0",
-        "q": "^1.2.0",
-        "vasync": "^1.6.0"
-    }
+  "name": "SHPS4Node-init",
+  "version": "2.0.1",
+  "description": "Init System used by SHPS",
+  "license": "MPL-2.0",
+  "author": "Marco Alka <me@marco-alka.de>",
+  "main": "index-init.js",
+  "dependencies": {
+    "node-mod-load": "^3.1.0",
+    "vasync": "^1.6.0",
+    "verror": "^1.6.0",
+    "promise-defer": "^1.0.0",
+    "rustify-js": "0.2.x",
+    "chalk": "^1.1.0",
+    "mics": "*"
+  }
 }

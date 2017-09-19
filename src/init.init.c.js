@@ -1,29 +1,18 @@
 ﻿'use strict';
 
-var libs = require('node-mod-load').libs;
-var q = require('q');
+const Result = require('result-js');
+const VError = require('verror');
 
-var h = require('../interface/init.h.js');
+const h = require('../interface/init.h.js');
 
-// Reference implementation
+
 h.init = function () {
 
-    if (!libs.init.o) {
+    if (h._running) {
 
-        if (this) {
-
-            libs.init.o = this;
-        }
-        else {
-
-            libs.init.o = new libs.init();
-        }
+        return Result.fromError(new VError.VError('SHPS is already running!'));
     }
 
-    libs.init._state = SHPS_MODULE_STATE_RUNNING;
-
-    return q.Promise($res => {
-
-        $res();
-    });
+    h._running = true;
+    return Result.fromSuccess(h);
 };
